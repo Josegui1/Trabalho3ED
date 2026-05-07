@@ -36,3 +36,114 @@ bool Matchmaking::removePlayer(int id){
     }
     return false;
 }
+
+// O(1)
+bool Matchmaking::comesBefore(Player a, Player b){
+    if(a.getScore() < b.getScore()){
+        return true;
+    }
+    if(a.getScore() > b.getScore()){
+        return false;
+    }
+    return a.getTimestamp() < b.getTimestamp();
+}
+
+// O(1)
+bool Matchmaking::comesBeforeOrEqual(Player a, Player b){
+    if(a.getScore() < b.getScore()){
+        return true;
+    }
+    if(a.getScore() > b.getScore()){
+        return false;
+    }
+    return a.getTimestamp() <= b.getTimestamp();
+}
+
+// O(n²)
+void Matchmaking::sortByScoreInsertion(){
+    for (int i = 1; i < size; i++){
+        Player key = players[i];
+        int j = i - 1;
+
+        while(j >= 0 && comesBefore(key, players[j])){
+            players[j+1] = players[j];
+            j--;
+        }
+        players[j+1] = key;
+    }
+}
+
+// O(nlog(n)), mas ceja que possui um custo adicional de ordem O(n) por conta da cópia
+void Matchmaking::sortByScoreMerge(){
+    if (size<=1){
+        return;
+    }
+
+    Player* sorted = mergeSort(players, size);
+    for(int i = 0; i < size; i++){
+        players[i] = sorted[i];
+    }
+
+    delete[] sorted;
+}
+
+// O(nlog(n))
+Player* Matchmaking::mergeSort(Player arr[], int n){
+    if (n==1){
+        Player* single = new Player[1];
+        single[0] = arr[0];
+        return single;
+    }
+
+    int mid = n/2;
+    Player* left = mergeSort(arr, mid);
+    Player* right = mergeSort(arr + mid, n - mid);
+
+    Player* sorted = merge(left, mid, right, n-mid);  
+    delete[] left;
+    delete[] right;
+
+    return sorted;
+}
+
+// O(n+m)
+Player* Matchmaking::merge(Player arr1[], int n, Player arr2[], int m){
+    Player* mArr = new Player[n+m];
+    int i = 0;
+    int j = 0;
+
+    while(i < n && j < m){
+        if(comesBeforeOrEqual(arr1[i], arr2[j])){
+            mArr[i+j] = arr1[i];
+            i++;
+        }
+        else{
+            mArr[i+j] = arr2[j];
+            j++;
+        }
+    }
+
+    while(i < n){
+        mArr[i+j] = arr1[i];
+        i++;
+    }
+
+    while(j < m){
+        mArr[i+j] = arr2[j];
+        j++;
+    }
+
+    return mArr;
+}
+
+// O(n)
+void Matchmaking::printWaitingPlayers(){
+    if(size==0){
+        std::cout << "(empty)" << std::endl;
+        return;
+    }
+
+    for (int i = 0; i < size; i++){
+        std::cout << "[" << players[i].getId() << "|" << players[i].getName() << "|" << players[i].getScore() << "|" << players[i].getTimestamp()<< "]" << std::endl;
+    }
+}
