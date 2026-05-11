@@ -147,3 +147,42 @@ void Matchmaking::printWaitingPlayers(){
         std::cout << "[" << players[i].getId() << "|" << players[i].getName() << "|" << players[i].getScore() << "|" << players[i].getTimestamp()<< "]" << std::endl;
     }
 }
+
+Player* Matchmaking::formGroup(int groupSize, int delta, int* n){
+    // verifica se tem jogadores suficientes
+    if(size < groupSize){
+        *n = 0;
+        return nullptr;
+    }
+        // anda pelo intervalo dos jogadores 
+    for(int i = 0; i <= size - groupSize; i++){
+
+        int menorScore = players[i].getScore();
+        int maiorScore = players[i + groupSize - 1].getScore();
+
+        // verifica se os jogadores podem jogar juntos
+        if(maiorScore - menorScore <= delta){
+            *n = groupSize;
+            Player* grupo = new Player[groupSize];
+
+            //copia os jogadores pra Um novo array dinamico
+            for (int j = 0; j < groupSize; j++){
+                grupo[j] = grupo[i + j];
+            }
+            // remove os jogares selecionados da fila
+            for (int k = i + groupSize; k < size; k++){
+                players[k - groupSize] = players[k];
+            }
+
+            size -= groupSize;
+            return grupo;
+
+        }
+    }
+    // se nao achou um grupo valido
+    *n = 0;
+    return nullptr;
+}
+
+
+
