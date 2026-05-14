@@ -185,4 +185,20 @@ Player* Matchmaking::formGroup(int groupSize, int delta, int* n){
 }
 
 
+Player* Matchmaking::getWaitingPlayers(int* n){
 
+    if(size == 0){
+        *n = 0;
+        return nullptr;
+    }
+
+    *n = size;
+
+    Player* copia = new Player[size];
+
+    for(int i =0; i < size; i++){
+        copia[i] = players[i];
+    }
+
+    return copia;
+}
